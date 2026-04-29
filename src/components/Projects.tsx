@@ -214,13 +214,7 @@ export default function Projects() {
       </div>
 
       {/* ── Vertical grid lines ── */}
-      {[25, 50, 75].map(pct => (
-        <div key={pct} style={{
-          position: "fixed", top: 0, bottom: 0, left: `${pct}%`,
-          width: "1px", background: "rgba(255,255,255,0.04)",
-          pointerEvents: "none", zIndex: 0,
-        }} />
-      ))}
+
 
       {/* ══════════════════════════════
           PROJECTS SECTION
