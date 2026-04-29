@@ -15,6 +15,7 @@ const projects = [
     tags: ["Flutter", "Cloudinary", "Dart"],
     accent: "#3b82f6",
     num: "01",
+    link: "https://github.com/Anirudh05bit/Social-Media-APP",
   },
   {
     id: 2,
@@ -26,6 +27,7 @@ const projects = [
     tags: ["React", "Tailwind", "AI"],
     accent: "#10b981",
     num: "02",
+    link: "https://github.com/Anirudh05bit/sense-align-assist",
   },
   {
     id: 3,
@@ -304,7 +306,10 @@ export default function Projects() {
                     <span style={{ fontSize: "10px", color: "rgba(255,255,255,0.16)", letterSpacing: "0.1em" }}>
                       {project.year}
                     </span>
-                    <motion.div
+                    <motion.a
+                      href={(project as any).link || "#"}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       whileHover={{ scale: 1.15, borderColor: project.accent, boxShadow: `0 0 12px ${project.accent}50` }}
                       style={{
                         width: "38px", height: "38px", borderRadius: "50%",
@@ -316,7 +321,7 @@ export default function Projects() {
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
                         <path d="M7 17L17 7M17 7H7M17 7V17" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.45" />
                       </svg>
-                    </motion.div>
+                    </motion.a>
                   </div>
                 </div>
 
