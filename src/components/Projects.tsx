@@ -213,7 +213,7 @@ export default function Projects() {
         </svg>
       </div>
 
-      {/* ── Vertical grid lines ── */}
+
 
 
       {/* ══════════════════════════════
@@ -476,20 +476,26 @@ export default function Projects() {
         position: "relative", zIndex: 1,
       }}>
         <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.18)", letterSpacing: "0.06em" }}>
-          © {new Date().getFullYear()} Anirudh Suresh. All rights reserved.
+
         </p>
         <div style={{ display: "flex", gap: "2rem" }}>
-          {["GitHub", "LinkedIn", "Resume"].map(link => (
+          {[
+            { name: "GitHub", url: "https://github.com/Anirudh05bit" },
+            { name: "LinkedIn", url: "https://www.linkedin.com/in/anirudh-suresh-5015b7328/" },
+            { name: "Instagram", url: "https://www.instagram.com/anirudhsuresh05/?hl=en" },
+          ].map(social => (
             <motion.a
-              key={link}
-              href="#"
+              key={social.name}
+              href={social.url}
+              target="_blank"
+              rel="noopener noreferrer"
               whileHover={{ color: "#5ed29c" }}
               style={{
                 fontSize: "11px", letterSpacing: "0.15em", textTransform: "uppercase",
                 color: "rgba(255,255,255,0.22)", textDecoration: "none",
               }}
             >
-              {link}
+              {social.name}
             </motion.a>
           ))}
         </div>

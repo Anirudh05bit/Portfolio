@@ -111,8 +111,8 @@ export default function CinematicExperience() {
   const opacityW3 = useTransform(scrollYProgress, [0.72, 0.80, 0.90, 0.96], [0, 1, 1, 0]);
 
   return (
-    <div ref={containerRef} className="relative h-[700vh] w-full bg-[#080808]"
-      style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+    <div ref={containerRef} className="h-[700vh] w-full bg-[#080808]"
+      style={{ position: "relative", fontFamily: "'Space Grotesk', sans-serif" }}>
 
       <AnimatePresence>
         {showIntro && (
