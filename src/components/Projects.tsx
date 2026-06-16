@@ -814,34 +814,7 @@ export default function Projects() {
     }}
   >
     {/* Eyebrow */}
-    <FadeIn>
-      <p
-        className="kanit"
-        style={{
-          fontSize: "clamp(0.65rem,1.1vw,0.85rem)",
-          letterSpacing: "0.3em",
-          textTransform: "uppercase",
-          color: "#5ed29c",
-          fontWeight: 500,
-          marginBottom: "0.75rem",
-          display: "flex",
-          alignItems: "center",
-          gap: "8px",
-        }}
-      >
-        <span
-          style={{
-            display: "inline-block",
-            width: 6,
-            height: 6,
-            borderRadius: "50%",
-            background: "#5ed29c",
-            boxShadow: "0 0 8px #5ed29c",
-          }}
-        />
-        Technical Skills
-      </p>
-    </FadeIn>
+    
 
     <SectionHeading text="The Stack." />
 
