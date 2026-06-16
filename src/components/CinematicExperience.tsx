@@ -9,6 +9,34 @@ const FRAME_COUNT = 128;
 const currentFrame = (i: number) =>
   `/sequence/frame_${i.toString().padStart(3, "0")}_delay-0.062s.png`;
 
+/** Single source of truth: scroll segments ↔ image frames (3 equal writeups) */
+const WRITEUP_COUNT = 3;
+const FRAMES_PER_WRITEUP = FRAME_COUNT / WRITEUP_COUNT;
+
+const CINEMATIC = {
+  SCROLL_VH: 800,
+  FRAME_SCROLL_START: 0.06,
+  FRAME_SCROLL_END: 0.94,
+  segments: [
+    { kind: "name" as const, from: 0, to: Math.floor(FRAMES_PER_WRITEUP) - 1 },
+    { kind: "beat1" as const, from: Math.floor(FRAMES_PER_WRITEUP), to: Math.floor(FRAMES_PER_WRITEUP * 2) - 1 },
+    { kind: "beat2" as const, from: Math.floor(FRAMES_PER_WRITEUP * 2), to: FRAME_COUNT - 1 },
+  ],
+};
+
+function frameToScrollProgress(frame: number) {
+  const { FRAME_SCROLL_START, FRAME_SCROLL_END } = CINEMATIC;
+  const t = frame / (FRAME_COUNT - 1);
+  return FRAME_SCROLL_START + t * (FRAME_SCROLL_END - FRAME_SCROLL_START);
+}
+
+function beatFromFrame(frame: number): 1 | 2 | null {
+  const [, beat1, beat2] = CINEMATIC.segments;
+  if (frame >= beat1.from && frame <= beat1.to) return 1;
+  if (frame >= beat2.from && frame <= beat2.to) return 2;
+  return null;
+}
+
 export default function CinematicExperience() {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -17,6 +45,7 @@ export default function CinematicExperience() {
   const [imagesLoaded, setImagesLoaded] = useState(false);
   const [showIntro, setShowIntro] = useState(true);
   const [hideName, setHideName] = useState(false);
+  const [activeBeat, setActiveBeat] = useState<1 | 2 | null>(null);
 
   useEffect(() => {
     if (!showIntro) return;
@@ -41,7 +70,12 @@ export default function CinematicExperience() {
     offset: ["start start", "end end"],
   });
 
-  const frameIndex = useTransform(scrollYProgress, [0, 0.1, 0.9], [0, 0, FRAME_COUNT - 1]);
+  // Image sequence: hold first frame, scrub through middle, hold last frame
+  const frameIndex = useTransform(
+    scrollYProgress,
+    [0, CINEMATIC.FRAME_SCROLL_START, CINEMATIC.FRAME_SCROLL_END, 1],
+    [0, 0, FRAME_COUNT - 1, FRAME_COUNT - 1]
+  );
 
   useEffect(() => {
     const loaded: HTMLImageElement[] = [];
@@ -80,15 +114,13 @@ export default function CinematicExperience() {
   }, [imagesLoaded, drawImage, frameIndex]);
 
   useMotionValueEvent(frameIndex, "change", (v) => {
-    renderRef.current = Math.floor(v);
-    if (imagesLoaded) drawImage(renderRef.current);
-  });
-  useMotionValueEvent(scrollYProgress, "change", (v) => {
-    if (v > 0.22) {
-      setHideName(true);
-    } else {
-      setHideName(false);
-    }
+    const frame = Math.floor(v);
+    renderRef.current = frame;
+    if (imagesLoaded) drawImage(frame);
+
+    const beat = beatFromFrame(frame);
+    setActiveBeat(beat);
+    setHideName(frame > CINEMATIC.segments[0].to);
   });
 
   useEffect(() => {
@@ -97,22 +129,18 @@ export default function CinematicExperience() {
     return () => window.removeEventListener("resize", onResize);
   }, [imagesLoaded, drawImage]);
 
-  const yName = useTransform(scrollYProgress, [0, 0.22], [0, -160]);
+  const nameScrollEnd = frameToScrollProgress(CINEMATIC.segments[0].to);
+  const yName = useTransform(scrollYProgress, [0, nameScrollEnd], [0, -120]);
+  const scaleNameY = useTransform(scrollYProgress, [0, nameScrollEnd * 0.35], [1.02, 1]);
 
-  const scaleNameY = useTransform(scrollYProgress, [0, 0.05], [1.02, 1]);
-
-  const yW1 = useTransform(scrollYProgress, [0.20, 0.42], [140, -60]);
-  const opacityW1 = useTransform(scrollYProgress, [0.20, 0.28, 0.40, 0.48], [0, 1, 1, 0]);
-
-  const yW2 = useTransform(scrollYProgress, [0.48, 0.68], [140, -60]);
-  const opacityW2 = useTransform(scrollYProgress, [0.48, 0.56, 0.65, 0.72], [0, 1, 1, 0]);
-
-  const yW3 = useTransform(scrollYProgress, [0.72, 0.94], [140, -60]);
-  const opacityW3 = useTransform(scrollYProgress, [0.72, 0.80, 0.90, 0.96], [0, 1, 1, 0]);
+  const beatEnter = { opacity: 0, y: 40, filter: "blur(6px)" };
+  const beatCenter = { opacity: 1, y: 0, filter: "blur(0px)" };
+  const beatExit = { opacity: 0, y: -32, filter: "blur(4px)" };
+  const beatTransition = { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const };
 
   return (
-    <div ref={containerRef} className="h-[700vh] w-full bg-[#080808]"
-      style={{ position: "relative", fontFamily: "'Space Grotesk', sans-serif" }}>
+    <div ref={containerRef} className="w-full bg-[#080808]"
+      style={{ position: "relative", fontFamily: "'Space Grotesk', sans-serif", height: `${CINEMATIC.SCROLL_VH}vh` }}>
 
       <AnimatePresence>
         {showIntro && (
@@ -125,18 +153,19 @@ export default function CinematicExperience() {
             <motion.img
               initial={{ scale: 1.15 }}
               animate={{ scale: 1 }}
-              transition={{ duration: 5, ease: "easeOut" }}
+              // ▲ Intro zoom slowed: 5s → 7s
+              transition={{ duration: 7, ease: "easeOut" }}
               src="/sequence/frame_0000_delay-0.062s.png"
               alt="Intro Background"
               className="absolute inset-0 w-full h-full object-cover opacity-70"
             />
 
-            {/* text pinned to bottom */}
             <div className="absolute bottom-0 left-0 right-0 z-10 flex flex-col items-center pb-14 px-6">
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: "70%" }}
-                transition={{ duration: 1, delay: 0.6, ease: "easeInOut" }}
+                // ▲ Line draws in a little slower
+                transition={{ duration: 1.3, delay: 0.6, ease: "easeInOut" }}
                 style={{ height: "1px", background: "rgba(255,255,255,0.25)", marginBottom: "1.2rem" }}
               />
 
@@ -145,7 +174,8 @@ export default function CinematicExperience() {
                   <motion.p
                     initial={{ y: "100%", opacity: 0 }}
                     animate={{ y: "0%", opacity: 1 }}
-                    transition={{ duration: 0.9, delay: 0.6 + i * 0.2, ease: [0.16, 1, 0.3, 1] }}
+                    // ▲ Text rises more slowly: 0.9s → 1.1s, stagger 0.2 → 0.28
+                    transition={{ duration: 1.1, delay: 0.7 + i * 0.28, ease: [0.16, 1, 0.3, 1] }}
                     style={{
                       fontSize: "clamp(1.8rem, 5vw, 4.5rem)",
                       fontWeight: 300,
@@ -163,14 +193,15 @@ export default function CinematicExperience() {
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: "70%" }}
-                transition={{ duration: 1, delay: 1, ease: "easeInOut" }}
+                transition={{ duration: 1.3, delay: 1.1, ease: "easeInOut" }}
                 style={{ height: "1px", background: "rgba(255,255,255,0.25)", marginTop: "1.2rem" }}
               />
 
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ duration: 1, delay: 2 }}
+                // ▲ Scroll hint fades in later: delay 2 → 2.5
+                transition={{ duration: 1, delay: 2.5 }}
                 className="flex flex-col items-center gap-2 mt-6"
               >
                 <p style={{
@@ -182,7 +213,8 @@ export default function CinematicExperience() {
                 <div style={{ width: "1px", height: "35px", background: "rgba(255,255,255,0.1)", position: "relative", overflow: "hidden" }}>
                   <motion.div
                     animate={{ y: ["-100%", "200%"] }}
-                    transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
+                    // ▲ Scroll indicator pulses more slowly: 1.2s → 1.7s
+                    transition={{ duration: 1.7, repeat: Infinity, ease: "easeInOut" }}
                     style={{ width: "1px", height: "35px", background: "rgba(255,255,255,0.7)" }}
                   />
                 </div>
@@ -192,7 +224,6 @@ export default function CinematicExperience() {
         )}
       </AnimatePresence>
 
-      {/* sticky canvas + overlays all together inside sticky div */}
       <div className="sticky top-0 h-screen w-full overflow-hidden z-0 bg-black">
         <img
           src="/sequence/frame_000_delay-0.062s.png"
@@ -209,7 +240,6 @@ export default function CinematicExperience() {
         <div className="absolute inset-0 pointer-events-none z-20"
           style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.05) 50%, rgba(0,0,0,0.6) 100%)" }} />
 
-        {/* ── ALL OVERLAYS INSIDE STICKY DIV ── */}
         <div className="absolute inset-0 w-full z-30 pointer-events-none">
 
           {/* 01 — Name */}
@@ -218,7 +248,8 @@ export default function CinematicExperience() {
               <motion.div
                 initial={{ opacity: 1 }}
                 exit={{ opacity: 0, y: -100, filter: "blur(10px)" }}
-                transition={{ duration: 0.6 }}
+                // ▲ Name exit slower: 0.6s → 0.85s
+                transition={{ duration: 0.85 }}
                 style={{ y: yName, scaleY: scaleNameY }}
                 className="absolute top-[28vh] left-0 w-full flex flex-col items-center px-6"
               >
@@ -287,84 +318,77 @@ export default function CinematicExperience() {
               </motion.div>
             )}
           </AnimatePresence>
-          {/* 02 — I build apps */}
-          <motion.div style={{ y: yW1, opacity: opacityW1 }}
-            className="absolute top-[30vh] left-0 w-full flex flex-col px-8 md:px-24">
-            <p style={{
-              fontSize: "11px", letterSpacing: "0.28em", textTransform: "uppercase",
-              color: "rgba(255,255,255,0.35)", marginBottom: "1rem"
-            }}></p>
-            <h2 style={{
-              fontSize: "clamp(2.2rem, 6vw, 5.5rem)", fontWeight: 300,
-              letterSpacing: "-0.03em", lineHeight: 1.05, color: "#fff", margin: 0,
-              maxWidth: "550px"
-            }}>
-              I build{" "}
-              <span style={{ color: "transparent", WebkitTextStroke: "1px rgba(255,255,255,0.7)" }}>
-                apps
-              </span>{" "}
-              that matter.
-            </h2>
-            <p style={{
-              marginTop: "1.5rem", fontSize: "15px", color: "rgba(255,255,255,0.5)",
-              maxWidth: "380px", lineHeight: 1.75, fontWeight: 300
-            }}>
-              From mobile apps to full-stack web platforms —<br />
-              built with Flutter, React, and Node.js.
-            </p>
-          </motion.div>
 
-          {/* 03 — Full Stack Developer */}
-          <motion.div style={{ y: yW2, opacity: opacityW2 }}
-            className="absolute top-[30vh] left-0 w-full flex flex-col px-8 md:px-24">
-            <p style={{
-              fontSize: "11px", letterSpacing: "0.28em", textTransform: "uppercase",
-              color: "rgba(255,255,255,0.35)", marginBottom: "1.25rem"
-            }}></p>
-            <div style={{ borderLeft: "1px solid rgba(255,255,255,0.2)", paddingLeft: "1.5rem" }}>
-              <h2 style={{
-                fontSize: "clamp(2.8rem, 7vw, 6rem)", fontWeight: 700,
-                letterSpacing: "-0.04em", lineHeight: 0.95, color: "#fff", margin: 0
-              }}>
-                Full Stack<br />Developer
-              </h2>
-              <p style={{
-                marginTop: "1.25rem", fontSize: "15px", color: "rgba(255,255,255,0.45)",
-                maxWidth: "380px", lineHeight: 1.75, fontWeight: 300
-              }}>
-                Student at Amrita Vishwa Vidyapeetham.<br />
-                WEB-SIG Co-Lead, ACM Student Chapter.
-              </p>
-            </div>
-          </motion.div>
+          {/* Scroll beats */}
+          <div className="absolute top-[28vh] left-0 w-full px-8 md:px-24">
+            <AnimatePresence mode="wait">
+              {activeBeat === 1 && (
+                <motion.div
+                  key="beat-1"
+                  initial={beatEnter}
+                  animate={beatCenter}
+                  exit={beatExit}
+                  transition={beatTransition}
+                  className="flex flex-col"
+                >
+                  <p style={{
+                    fontSize: "11px", letterSpacing: "0.28em", textTransform: "uppercase",
+                    color: "rgba(255,255,255,0.35)", marginBottom: "1rem"
+                  }}></p>
+                  <h2 style={{
+                    fontSize: "clamp(2.2rem, 6vw, 5.5rem)", fontWeight: 300,
+                    letterSpacing: "-0.03em", lineHeight: 1.05, color: "#fff", margin: 0,
+                    maxWidth: "550px"
+                  }}>
+                    I build{" "}
+                    <span style={{ color: "transparent", WebkitTextStroke: "1px rgba(255,255,255,0.7)" }}>
+                      apps
+                    </span>{" "}
+                    that matter.
+                  </h2>
+                  <p style={{
+                    marginTop: "1.5rem", fontSize: "15px", color: "rgba(255,255,255,0.5)",
+                    maxWidth: "380px", lineHeight: 1.75, fontWeight: 300
+                  }}>
+                    From mobile apps to full-stack web platforms —<br />
+                    built with Flutter, React, and Node.js.
+                  </p>
+                </motion.div>
+              )}
 
-          {/* 04 — Turning ideas */}
-          <motion.div style={{ y: yW3, opacity: opacityW3 }}
-            className="absolute top-[30vh] left-0 w-full flex flex-col px-8 md:px-24">
-            <p style={{
-              fontSize: "11px", letterSpacing: "0.28em", textTransform: "uppercase",
-              color: "rgba(255,255,255,0.35)", marginBottom: "1.25rem"
-            }}>04</p>
-            <div style={{
-              display: "flex", justifyContent: "space-between",
-              alignItems: "flex-end", flexWrap: "wrap", gap: "2rem"
-            }}>
-              <h2 style={{
-                fontSize: "clamp(2.2rem, 5.5vw, 4.5rem)", fontWeight: 700,
-                letterSpacing: "-0.04em", lineHeight: 1.0, color: "#fff",
-                margin: 0, maxWidth: "600px"
-              }}>
-                Turning ideas<br />into products.
-              </h2>
-              <p style={{
-                fontSize: "15px", color: "rgba(255,255,255,0.45)", maxWidth: "320px",
-                lineHeight: 1.75, fontWeight: 300, textAlign: "right"
-              }}>
-                Pixta. Adapt AI. YathraMate.<br />
-                Real apps, built from scratch.
-              </p>
-            </div>
-          </motion.div>
+              {activeBeat === 2 && (
+                <motion.div
+                  key="beat-2"
+                  initial={beatEnter}
+                  animate={beatCenter}
+                  exit={beatExit}
+                  transition={beatTransition}
+                  className="flex flex-col"
+                >
+                  <p style={{
+                    fontSize: "11px", letterSpacing: "0.28em", textTransform: "uppercase",
+                    color: "rgba(255,255,255,0.35)", marginBottom: "1.25rem"
+                  }}></p>
+                  <div style={{ borderLeft: "1px solid rgba(255,255,255,0.2)", paddingLeft: "1.5rem" }}>
+                    <h2 style={{
+                      fontSize: "clamp(2.8rem, 7vw, 6rem)", fontWeight: 700,
+                      letterSpacing: "-0.04em", lineHeight: 0.95, color: "#fff", margin: 0
+                    }}>
+                      Full Stack<br />Developer
+                    </h2>
+                    <p style={{
+                      marginTop: "1.25rem", fontSize: "15px", color: "rgba(255,255,255,0.45)",
+                      maxWidth: "380px", lineHeight: 1.75, fontWeight: 300
+                    }}>
+                      Student at Amrita Vishwa Vidyapeetham.<br />
+                      ACM Student Chapter.
+                    </p>
+                  </div>
+                </motion.div>
+              )}
+
+            </AnimatePresence>
+          </div>
 
         </div>
       </div>

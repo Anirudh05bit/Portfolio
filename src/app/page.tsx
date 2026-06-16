@@ -1,4 +1,5 @@
 import CinematicExperience from "@/components/CinematicExperience";
+import ContactSection from "@/components/ContactSection";
 import Projects from "@/components/Projects";
 
 export default function Home() {
@@ -9,7 +10,10 @@ export default function Home() {
 
       {/* 2. Projects / Work */}
       <Projects />
-      
+
+      {/* 3. Contact */}
+      <ContactSection />
+
       {/* Footer */}
       <footer className="py-12 text-center text-white/40 bg-[#121212] border-t border-white/5 text-sm">
         <p>© {new Date().getFullYear()} Anirudh Suresh. All rights reserved.</p>
