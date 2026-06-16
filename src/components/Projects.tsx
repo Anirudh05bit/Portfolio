@@ -459,7 +459,7 @@ export default function Projects() {
     style={{
       position: "absolute",
       inset: 0,
-      background: "rgba(0,0,0,0.55)",
+      background: "rgba(0, 0, 0, 0.1)",
       zIndex: 1,
       pointerEvents: "none",
     }}
@@ -489,11 +489,11 @@ export default function Projects() {
           borderRadius: "50%", background: "#5ed29c",
           boxShadow: "0 0 8px #5ed29c",
         }} />
-        Selected Works
+        
       </p>
     </FadeIn>
 
-    <SectionHeading text="Things I've Built." />
+    <SectionHeading text="Things I've Built" />
 
     {/* Sticky stacking cards */}
     <div style={{ marginTop: "clamp(2rem,5vw,4rem)" }}>
@@ -734,110 +734,197 @@ export default function Projects() {
           SKILLS SECTION
           Dark, rounded top — overlapping
       ══════════════════════════════ */}
-      <section
+     ```jsx
+<section
+  style={{
+    background: "#0C0C0C",
+    borderRadius: "clamp(40px,6vw,60px) clamp(40px,6vw,60px) 0 0",
+    padding: "clamp(4rem,8vw,8rem) clamp(1.25rem,6vw,5rem) clamp(5rem,10vw,9rem)",
+    marginTop: "-2.5rem",
+    position: "relative",
+    zIndex: 3,
+    overflow: "hidden",
+  }}
+>
+  {/* Background Video */}
+  <video
+    autoPlay
+    muted
+    loop
+    playsInline
+    style={{
+      position: "absolute",
+      inset: 0,
+      width: "100%",
+      height: "100%",
+      objectFit: "cover",
+      opacity: 0.8,
+      pointerEvents: "none",
+      zIndex: 0,
+    }}
+  >
+    <source
+      src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260328_065045_c44942da-53c6-4804-b734-f9e07fc22e08.mp4"
+      type="video/mp4"
+    />
+  </video>
+
+  {/* Main Blur */}
+  <div
+    style={{
+      position: "absolute",
+      width: "984px",
+      height: "527px",
+      left: "50%",
+      top: "50%",
+      transform: "translate(-50%, -50%)",
+      background: "#030712",
+      opacity: 0.9,
+      filter: "blur(82px)",
+      pointerEvents: "none",
+      zIndex: 0,
+    }}
+  />
+
+  {/* Purple Glow */}
+  <div
+    style={{
+      position: "absolute",
+      width: "700px",
+      height: "700px",
+      left: "50%",
+      top: "50%",
+      transform: "translate(-50%, -50%)",
+      borderRadius: "50%",
+      background:
+        "radial-gradient(circle, rgba(99,102,241,0.18), rgba(168,85,247,0.12), transparent 70%)",
+      filter: "blur(80px)",
+      pointerEvents: "none",
+      zIndex: 0,
+    }}
+  />
+
+  {/* Content */}
+  <div
+    style={{
+      maxWidth: "1100px",
+      margin: "0 auto",
+      position: "relative",
+      zIndex: 2,
+    }}
+  >
+    {/* Eyebrow */}
+    <FadeIn>
+      <p
+        className="kanit"
         style={{
-          background: "#0C0C0C",
-          borderRadius: "clamp(40px,6vw,60px) clamp(40px,6vw,60px) 0 0",
-          padding: "clamp(4rem,8vw,8rem) clamp(1.25rem,6vw,5rem) clamp(5rem,10vw,9rem)",
-          marginTop: "-2.5rem",
-          position: "relative",
-          zIndex: 3,
+          fontSize: "clamp(0.65rem,1.1vw,0.85rem)",
+          letterSpacing: "0.3em",
+          textTransform: "uppercase",
+          color: "#5ed29c",
+          fontWeight: 500,
+          marginBottom: "0.75rem",
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
         }}
       >
-        <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
+        <span
+          style={{
+            display: "inline-block",
+            width: 6,
+            height: 6,
+            borderRadius: "50%",
+            background: "#5ed29c",
+            boxShadow: "0 0 8px #5ed29c",
+          }}
+        />
+        Technical Skills
+      </p>
+    </FadeIn>
 
-          {/* Eyebrow */}
-          <FadeIn>
-            <p
-              className="kanit"
-              style={{
-                fontSize: "clamp(0.65rem,1.1vw,0.85rem)",
-                letterSpacing: "0.3em",
-                textTransform: "uppercase",
-                color: "#5ed29c",
-                fontWeight: 500,
-                marginBottom: "0.75rem",
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-              }}
-            >
-              <span style={{ display: "inline-block", width: 6, height: 6, borderRadius: "50%", background: "#5ed29c", boxShadow: "0 0 8px #5ed29c" }} />
-              Technical Skills
-            </p>
-          </FadeIn>
+    <SectionHeading text="The Stack." />
 
-          <SectionHeading text="The Stack." />
+    {/* Skills Grid */}
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns:
+          "repeat(auto-fill, minmax(clamp(200px,28vw,280px), 1fr))",
+        gap: "1rem",
+        marginTop: "clamp(2rem,4vw,3.5rem)",
+      }}
+    >
+      {Object.entries(skills).map(([category, value], idx) => {
+        const accent = skillAccents[idx % skillAccents.length];
 
-          {/* Skills grid — liquid glass cards with Kanit labels */}
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(clamp(200px,28vw,280px), 1fr))",
-              gap: "1rem",
-              marginTop: "clamp(2rem,4vw,3.5rem)",
-            }}
+        return (
+          <LiquidCard
+            key={category}
+            delay={idx * 0.07}
+            accent={accent}
+            borderRadius="20px"
           >
-            {Object.entries(skills).map(([category, value], idx) => {
-              const accent = skillAccents[idx % skillAccents.length];
-              return (
-                <LiquidCard key={category} delay={idx * 0.07} accent={accent} borderRadius="20px">
-                  <div style={{ padding: "1.8rem" }}>
-                    <div
-                      style={{
-                        width: "32px",
-                        height: "32px",
-                        borderRadius: "8px",
-                        background: `${accent}15`,
-                        border: `1px solid ${accent}40`,
-                        marginBottom: "1rem",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                    >
-                      <div
-                        style={{
-                          width: "8px",
-                          height: "8px",
-                          borderRadius: "50%",
-                          background: accent,
-                          boxShadow: `0 0 8px ${accent}`,
-                        }}
-                      />
-                    </div>
-                    <p
-                      className="kanit"
-                      style={{
-                        fontSize: "clamp(0.6rem,1vw,0.72rem)",
-                        letterSpacing: "0.28em",
-                        color: accent,
-                        textTransform: "uppercase",
-                        marginBottom: "0.45rem",
-                        fontWeight: 600,
-                        opacity: 0.85,
-                      }}
-                    >
-                      {category}
-                    </p>
-                    <p
-                      className="kanit"
-                      style={{
-                        fontSize: "clamp(0.78rem,1.3vw,1rem)",
-                        color: "rgba(215,226,234,0.6)",
-                        lineHeight: 1.7,
-                        fontWeight: 300,
-                      }}
-                    >
-                      {value}
-                    </p>
-                  </div>
-                </LiquidCard>
-              );
-            })}
-          </div>
-        </div>
-      </section>
+            <div style={{ padding: "1.8rem" }}>
+              <div
+                style={{
+                  width: "32px",
+                  height: "32px",
+                  borderRadius: "8px",
+                  background: `${accent}15`,
+                  border: `1px solid ${accent}40`,
+                  marginBottom: "1rem",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <div
+                  style={{
+                    width: "8px",
+                    height: "8px",
+                    borderRadius: "50%",
+                    background: accent,
+                    boxShadow: `0 0 8px ${accent}`,
+                  }}
+                />
+              </div>
+
+              <p
+                className="kanit"
+                style={{
+                  fontSize: "clamp(0.6rem,1vw,0.72rem)",
+                  letterSpacing: "0.28em",
+                  color: accent,
+                  textTransform: "uppercase",
+                  marginBottom: "0.45rem",
+                  fontWeight: 600,
+                  opacity: 0.85,
+                }}
+              >
+                {category}
+              </p>
+
+              <p
+                className="kanit"
+                style={{
+                  fontSize: "clamp(0.78rem,1.3vw,1rem)",
+                  color: "rgb(185, 185, 185)",
+                  lineHeight: 1.7,
+                  fontWeight: 300,
+                }}
+              >
+                {value}
+              </p>
+            </div>
+          </LiquidCard>
+        );
+      })}
+    </div>
+  </div>
+</section>
+```
+
 
       {/* ══════════════════════════════
           FOOTER
