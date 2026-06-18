@@ -1,8 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState, FormEvent } from "react";
-import { ContainerScroll } from "@/components/ui/container-scroll-animation";
+import { useState, FormEvent, } from "react";
+import { ContainerScroll } from "./ui/container-scroll-animation";
 
 function ContactForm() {
   const [submitted, setSubmitted] = useState(false);
