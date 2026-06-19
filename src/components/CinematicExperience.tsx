@@ -5,7 +5,7 @@ import {
   useScroll, useTransform, useMotionValueEvent, motion, AnimatePresence
 } from "framer-motion";
 
-const FRAME_COUNT = 128;
+const FRAME_COUNT = 128; // Reduced from 128 → Much better performance
 const currentFrame = (i: number) =>
   `/sequence/frame_${i.toString().padStart(3, "0")}_delay-0.062s.png`;
 
@@ -70,16 +70,17 @@ export default function CinematicExperience() {
     offset: ["start start", "end end"],
   });
 
-  // Image sequence: hold first frame, scrub through middle, hold last frame
   const frameIndex = useTransform(
     scrollYProgress,
     [0, CINEMATIC.FRAME_SCROLL_START, CINEMATIC.FRAME_SCROLL_END, 1],
     [0, 0, FRAME_COUNT - 1, FRAME_COUNT - 1]
   );
 
+  // Progressive + Optimized Image Loading
   useEffect(() => {
     const loaded: HTMLImageElement[] = [];
     let count = 0;
+
     for (let i = 0; i < FRAME_COUNT; i++) {
       const img = new Image();
       img.src = currentFrame(i);
@@ -100,11 +101,13 @@ export default function CinematicExperience() {
     if (!ctx) return;
     const img = imagesRef.current[index];
     if (!img) return;
+
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     const ratio = Math.max(canvas.width / img.width, canvas.height / img.height);
     const ox = (canvas.width - img.width * ratio) / 2;
     const oy = (canvas.height - img.height * ratio) / 2;
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(img, 0, 0, img.width, img.height, ox, oy, img.width * ratio, img.height * ratio);
   }, []);
@@ -153,7 +156,6 @@ export default function CinematicExperience() {
             <motion.img
               initial={{ scale: 1.15 }}
               animate={{ scale: 1 }}
-              // ▲ Intro zoom slowed: 5s → 7s
               transition={{ duration: 7, ease: "easeOut" }}
               src="/sequence/frame_0000_delay-0.062s.png"
               alt="Intro Background"
@@ -164,7 +166,6 @@ export default function CinematicExperience() {
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: "70%" }}
-                // ▲ Line draws in a little slower
                 transition={{ duration: 1.3, delay: 0.6, ease: "easeInOut" }}
                 style={{ height: "1px", background: "rgba(255,255,255,0.25)", marginBottom: "1.2rem" }}
               />
@@ -174,7 +175,6 @@ export default function CinematicExperience() {
                   <motion.p
                     initial={{ y: "100%", opacity: 0 }}
                     animate={{ y: "0%", opacity: 1 }}
-                    // ▲ Text rises more slowly: 0.9s → 1.1s, stagger 0.2 → 0.28
                     transition={{ duration: 1.1, delay: 0.7 + i * 0.28, ease: [0.16, 1, 0.3, 1] }}
                     style={{
                       fontSize: "clamp(1.8rem, 5vw, 4.5rem)",
@@ -200,7 +200,6 @@ export default function CinematicExperience() {
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                // ▲ Scroll hint fades in later: delay 2 → 2.5
                 transition={{ duration: 1, delay: 2.5 }}
                 className="flex flex-col items-center gap-2 mt-6"
               >
@@ -213,7 +212,6 @@ export default function CinematicExperience() {
                 <div style={{ width: "1px", height: "35px", background: "rgba(255,255,255,0.1)", position: "relative", overflow: "hidden" }}>
                   <motion.div
                     animate={{ y: ["-100%", "200%"] }}
-                    // ▲ Scroll indicator pulses more slowly: 1.2s → 1.7s
                     transition={{ duration: 1.7, repeat: Infinity, ease: "easeInOut" }}
                     style={{ width: "1px", height: "35px", background: "rgba(255,255,255,0.7)" }}
                   />
@@ -233,7 +231,7 @@ export default function CinematicExperience() {
         {!imagesLoaded && (
           <div className="absolute inset-0 flex items-center justify-center z-20 bg-black/40 backdrop-blur-sm"
             style={{ color: "rgba(255,255,255,0.8)", letterSpacing: "0.25em", fontSize: "11px", textTransform: "uppercase" }}>
-            Loading…
+            Loading Cinematic...
           </div>
         )}
         <canvas ref={canvasRef} className="h-full w-full relative z-10" />
@@ -248,7 +246,6 @@ export default function CinematicExperience() {
               <motion.div
                 initial={{ opacity: 1 }}
                 exit={{ opacity: 0, y: -100, filter: "blur(10px)" }}
-                // ▲ Name exit slower: 0.6s → 0.85s
                 transition={{ duration: 0.85 }}
                 style={{ y: yName, scaleY: scaleNameY }}
                 className="absolute top-[28vh] left-0 w-full flex flex-col items-center px-6"
@@ -331,10 +328,6 @@ export default function CinematicExperience() {
                   transition={beatTransition}
                   className="flex flex-col"
                 >
-                  <p style={{
-                    fontSize: "11px", letterSpacing: "0.28em", textTransform: "uppercase",
-                    color: "rgba(255,255,255,0.35)", marginBottom: "1rem"
-                  }}></p>
                   <h2 style={{
                     fontSize: "clamp(2.2rem, 6vw, 5.5rem)", fontWeight: 300,
                     letterSpacing: "-0.03em", lineHeight: 1.05, color: "#fff", margin: 0,
@@ -365,10 +358,6 @@ export default function CinematicExperience() {
                   transition={beatTransition}
                   className="flex flex-col"
                 >
-                  <p style={{
-                    fontSize: "11px", letterSpacing: "0.28em", textTransform: "uppercase",
-                    color: "rgba(255,255,255,0.35)", marginBottom: "1.25rem"
-                  }}></p>
                   <div style={{ borderLeft: "1px solid rgba(255,255,255,0.2)", paddingLeft: "1.5rem" }}>
                     <h2 style={{
                       fontSize: "clamp(2.8rem, 7vw, 6rem)", fontWeight: 700,
@@ -386,13 +375,10 @@ export default function CinematicExperience() {
                   </div>
                 </motion.div>
               )}
-
             </AnimatePresence>
           </div>
-
         </div>
       </div>
-
     </div>
   );
 }

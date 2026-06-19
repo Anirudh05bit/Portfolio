@@ -436,6 +436,7 @@ export default function Projects() {
     muted
     loop
     playsInline
+    preload="none"
     style={{
       position: "absolute",
       top: 0,
@@ -531,6 +532,7 @@ export default function Projects() {
     muted
     loop
     playsInline
+    preload="none"
     style={{
       position: "absolute",
       top: 0,
@@ -752,6 +754,7 @@ export default function Projects() {
     muted
     loop
     playsInline
+    preload="none"
     style={{
       position: "absolute",
       inset: 0,
