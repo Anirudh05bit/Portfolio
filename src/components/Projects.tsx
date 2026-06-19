@@ -819,7 +819,7 @@ export default function Projects() {
     {/* Eyebrow */}
     
 
-    <SectionHeading text="The Stack." />
+    <SectionHeading text="The Stack" />
 
     {/* Skills Grid */}
     <div
@@ -899,52 +899,6 @@ export default function Projects() {
     </div>
   </div>
 </section>
-```
-
-
-      {/* ══════════════════════════════
-          FOOTER
-      ══════════════════════════════ */}
-      <footer
-        style={{
-          background: "#0C0C0C",
-          padding: "2rem clamp(1.25rem,6vw,5rem)",
-          borderTop: "1px solid rgba(255,255,255,0.05)",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: "1rem",
-        }}
-      >
-        <p className="kanit" style={{ fontSize: "11px", color: "rgba(255,255,255,0.18)", letterSpacing: "0.06em" }} />
-        <div style={{ display: "flex", gap: "2rem" }}>
-          {[
-            { name: "GitHub", url: "https://github.com/Anirudh05bit" },
-            { name: "LinkedIn", url: "https://www.linkedin.com/in/anirudh-suresh-5015b7328/" },
-            { name: "Instagram", url: "https://www.instagram.com/anirudhsuresh05/?hl=en" },
-          ].map((social) => (
-            <motion.a
-              key={social.name}
-              href={social.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              whileHover={{ color: "#5ed29c" }}
-              className="kanit"
-              style={{
-                fontSize: "clamp(0.65rem,1vw,0.78rem)",
-                letterSpacing: "0.18em",
-                textTransform: "uppercase",
-                color: "rgba(255,255,255,0.22)",
-                textDecoration: "none",
-                fontWeight: 500,
-              }}
-            >
-              {social.name}
-            </motion.a>
-          ))}
-        </div>
-      </footer>
     </div>
   );
 }
