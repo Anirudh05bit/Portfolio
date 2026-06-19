@@ -257,6 +257,64 @@ function LiquidCard({
   );
 }
 
+
+/* ── Bullet-entrance card, replaces LiquidCard just for this grid ──
+   Each card starts far outside the viewport on the side nearest its
+   column, flies inward, and settles with a spring overshoot. */
+function BulletCard({
+  children,
+  delay = 0,
+  accent,
+  borderRadius = "20px",
+  fromSide,
+  style = {},
+}: {
+  children: React.ReactNode;
+  delay?: number;
+  accent?: string;
+  borderRadius?: string;
+  fromSide: "left" | "right" | "top";
+  style?: React.CSSProperties;
+}) {
+  const { ref, inView } = useReveal(0.15);
+ 
+  const travel =
+    fromSide === "left"
+      ? { x: -900, y: 0 }
+      : fromSide === "right"
+      ? { x: 900, y: 0 }
+      : { x: 0, y: -500 };
+ 
+  return (
+    <motion.div
+      ref={ref}
+      initial={{
+        opacity: 0,
+        x: travel.x,
+        y: travel.y,
+        rotate: fromSide === "left" ? -8 : fromSide === "right" ? 8 : 0,
+        scale: 0.85,
+      }}
+      animate={
+        inView
+          ? { opacity: 1, x: 0, y: 0, rotate: 0, scale: 1 }
+          : {}
+      }
+      transition={{
+        type: "spring",
+        stiffness: 90,
+        damping: 12,
+        mass: 0.9,
+        delay,
+      }}
+      style={{ ...liquidGlassBase, borderRadius, ...style }}
+    >
+      <GlassBorder accent={accent} />
+      {children}
+    </motion.div>
+  );
+}
+
 /* Sticky stacking project card (Jack portfolio style) */
 function StickyProjectCard({
   project,
@@ -822,6 +880,7 @@ export default function Projects() {
     <SectionHeading text="The Stack" />
 
     {/* Skills Grid */}
+{/* Skills Grid */}
     <div
       style={{
         display: "grid",
@@ -840,6 +899,16 @@ export default function Projects() {
             delay={idx * 0.07}
             accent={accent}
             borderRadius="20px"
+            style={{
+              // Stronger, near-opaque dark backing so the card reads as a
+              // solid surface above the background instead of a faint
+              // tinted overlay that the busy wave art bleeds through.
+              background:
+                "linear-gradient(160deg, rgba(14,14,17,0.92) 0%, rgba(8,8,10,0.88) 100%)",
+              backdropFilter: "blur(28px)",
+              WebkitBackdropFilter: "blur(28px)",
+              boxShadow: `0 8px 32px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.03), inset 0 1px 0 rgba(255,255,255,0.06)`,
+            }}
           >
             <div style={{ padding: "1.8rem" }}>
               <div
@@ -847,8 +916,8 @@ export default function Projects() {
                   width: "32px",
                   height: "32px",
                   borderRadius: "8px",
-                  background: `${accent}15`,
-                  border: `1px solid ${accent}40`,
+                  background: `${accent}22`,
+                  border: `1px solid ${accent}55`,
                   marginBottom: "1rem",
                   display: "flex",
                   alignItems: "center",
@@ -861,7 +930,7 @@ export default function Projects() {
                     height: "8px",
                     borderRadius: "50%",
                     background: accent,
-                    boxShadow: `0 0 8px ${accent}`,
+                    boxShadow: `0 0 10px ${accent}`,
                   }}
                 />
               </div>
@@ -874,8 +943,9 @@ export default function Projects() {
                   color: accent,
                   textTransform: "uppercase",
                   marginBottom: "0.45rem",
-                  fontWeight: 600,
-                  opacity: 0.85,
+                  fontWeight: 700,
+                  opacity: 1,
+                  textShadow: `0 0 14px ${accent}55`,
                 }}
               >
                 {category}
@@ -885,9 +955,9 @@ export default function Projects() {
                 className="kanit"
                 style={{
                   fontSize: "clamp(0.78rem,1.3vw,1rem)",
-                  color: "rgb(185, 185, 185)",
+                  color: "rgb(225, 225, 228)",
                   lineHeight: 1.7,
-                  fontWeight: 300,
+                  fontWeight: 400,
                 }}
               >
                 {value}
