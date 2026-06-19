@@ -1,0 +1,92 @@
+"use client";
+
+import { motion } from "framer-motion";
+
+export default function Footer() {
+  return (
+    <footer
+      className="relative overflow-hidden border-t border-white/10"
+      style={{
+        background: "#060908",
+      }}
+    >
+      {/* Glow Effect */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background:
+            "radial-gradient(circle at center, rgba(94,210,156,0.12), transparent 70%)",
+          pointerEvents: "none",
+        }}
+      />
+
+      <div className="relative max-w-7xl mx-auto px-6 py-20">
+        {/* Hover Text */}
+        <motion.h2
+          initial={{ opacity: 0.7 }}
+          whileHover={{
+            opacity: 1,
+            scale: 1.03,
+          }}
+          transition={{ duration: 0.3 }}
+          className="text-center font-black uppercase tracking-tight cursor-default"
+          style={{
+            fontSize: "clamp(3rem, 10vw, 8rem)",
+            color: "rgba(255,255,255,0.08)",
+            lineHeight: 1,
+          }}
+        >
+          ANIRUDH
+        </motion.h2>
+
+        {/* Contact */}
+        <div className="mt-12 flex flex-col items-center gap-4">
+          <motion.a
+            href="mailto:anirudh@example.com"
+            whileHover={{
+              scale: 1.05,
+              color: "#5ed29c",
+            }}
+            className="text-white/70 text-lg transition-colors"
+          >
+            anirudh@example.com
+          </motion.a>
+
+          <motion.a
+            href="https://github.com/Anirudh05bit"
+            target="_blank"
+            rel="noopener noreferrer"
+            whileHover={{
+              scale: 1.05,
+              color: "#5ed29c",
+            }}
+            className="text-white/70 text-lg transition-colors"
+          >
+            GitHub
+          </motion.a>
+
+          <motion.a
+            href="https://www.linkedin.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            whileHover={{
+              scale: 1.05,
+              color: "#5ed29c",
+            }}
+            className="text-white/70 text-lg transition-colors"
+          >
+            LinkedIn
+          </motion.a>
+        </div>
+
+        {/* Bottom Line */}
+        <div className="mt-16 pt-6 border-t border-white/10 text-center">
+          <p className="text-white/40 text-sm">
+            © {new Date().getFullYear()} Anirudh Suresh. All rights reserved.
+          </p>
+        </div>
+      </div>
+    </footer>
+  );
+}
